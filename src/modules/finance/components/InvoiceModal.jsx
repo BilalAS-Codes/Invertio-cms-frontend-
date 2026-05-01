@@ -1,0 +1,101 @@
+import React, { useState } from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from '../../../components/ui/Card';
+import Button from '../../../components/ui/Button';
+import Input from '../../../components/ui/Input';
+import { XCircle, Loader2 } from 'lucide-react';
+
+const InvoiceModal = ({
+  isOpen,
+  onClose,
+  onSubmit,
+  isSubmitting,
+  clients,
+  projects,
+  currencies
+}) => {
+  const [selectedClientId, setSelectedClientId] = useState('');
+
+  if (!isOpen) return null;
+
+  // Filter projects based on selected client
+  const filteredProjects = selectedClientId 
+    ? projects.filter(p => p.client_id === selectedClientId)
+    : projects;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 text-slate-900 overflow-y-auto">
+      <Card className="w-full max-w-lg shadow-2xl animate-in fade-in zoom-in duration-200 max-h-[95vh] flex flex-col">
+        <CardHeader className="flex flex-row items-center justify-between py-6">
+          <div>
+            <CardTitle className="text-xl font-bold">New Invoice</CardTitle>
+            <p className="text-xs text-slate-500 mt-0.5 font-medium">Issue a professional billing document.</p>
+          </div>
+          <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
+            <XCircle className="w-5 h-5" />
+          </button>
+        </CardHeader>
+        <CardContent className="p-6">
+          <form onSubmit={onSubmit} className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <Input label="Invoice Number" name="invoice_number" placeholder="INV-2024-001" required />
+              <Input label="Invoice Date" name="invoice_date" type="date" required />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <Input label="Amount" name="amount" type="number" step="0.01" placeholder="500.00" required />
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">Currency</label>
+                <select name="currency" className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white">
+                  {currencies.map(c => (
+                    <option key={c.code} value={c.code}>{c.code} - {c.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-slate-700">Direction</label>
+              <select name="type" className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white">
+                <option value="Outbound">Outbound </option>
+                <option value="Inbound">Inbound </option>
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-slate-700">Client / Recipient</label>
+              <select 
+                name="client_id" 
+                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white" 
+                value={selectedClientId}
+                onChange={(e) => setSelectedClientId(e.target.value)}
+              >
+                <option value="">Select client...</option>
+                {clients.map(c => <option key={c.id} value={c.id}>{c.company_name}</option>)}
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-medium text-slate-700">Associated Project (Optional)</label>
+              <select name="project_id" className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white">
+                <option value="">Select project...</option>
+                {filteredProjects.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </select>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <Input label="Due Date" name="due_date" type="date" required />
+              <div className="space-y-1">
+                <label className="text-sm font-medium text-slate-700">Document (PDF/Image)</label>
+                <input type="file" name="document" className="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100" />
+              </div>
+            </div>
+            <div className="flex gap-3 justify-end pt-4">
+              <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
+              <Button type="submit" disabled={isSubmitting} className="bg-primary-600 hover:bg-primary-700">
+                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Issue Invoice"}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default InvoiceModal;
+

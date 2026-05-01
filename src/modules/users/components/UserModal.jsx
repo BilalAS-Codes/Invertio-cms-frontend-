@@ -1,0 +1,316 @@
+import React from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from '../../../components/ui/Card';
+import Button from '../../../components/ui/Button';
+import Input from '../../../components/ui/Input';
+import { 
+  X, Loader2, LayoutDashboard, Users, ShieldCheck, FolderKanban, 
+  CheckSquare, CircleDollarSign, UserPlus, CalendarClock, Contact 
+} from 'lucide-react';
+import { cn } from '../../../utils/cn';
+
+const UserModal = ({
+  isOpen,
+  onClose,
+  onSubmit,
+  isEditing,
+  selectedUser,
+  isSubmitting,
+  roles,
+  skills,
+  selectedSkills,
+  skillInput,
+  setSkillInput,
+  handleAddSkill,
+  removeSkill,
+  pages,
+  setPages,
+  modules,
+  setModules
+}) => {
+  if (!isOpen) return null;
+
+  const PERMISSION_CONFIG = [
+    { 
+      id: 'dashboard', 
+      label: 'Dashboard', 
+      icon: <LayoutDashboard className="w-5 h-5 text-indigo-500" />,
+      description: 'Main overview, company stats, and performance charts.',
+      actions: [
+        { key: 'view', label: 'View Dashboard' }
+      ]
+    },
+    { 
+      id: 'users', 
+      label: 'Users', 
+      icon: <Users className="w-5 h-5 text-blue-500" />,
+      description: 'Staff directory, account creation, and security settings.',
+      actions: [
+        { key: 'view', label: 'View Users List' },
+        { key: 'create', label: 'Add New Users' },
+        { key: 'salary.view', label: 'View Sensitive Salary' },
+        { key: 'status.edit', label: 'Toggle User Status' },
+        { key: 'permissions.edit', label: 'Edit Permissions' }
+      ]
+    },
+    { 
+      id: 'projects', 
+      label: 'Projects', 
+      icon: <FolderKanban className="w-5 h-5 text-emerald-500" />,
+      description: 'High-level project boards, budgets, and team setups.',
+      actions: [
+        { key: 'view', label: 'View Project List' },
+        { key: 'create', label: 'Create Projects' },
+        { key: 'team.manage', label: 'Manage Team Members' }
+      ]
+    },
+    { 
+      id: 'tasks', 
+      label: 'Tasks', 
+      icon: <CheckSquare className="w-5 h-5 text-rose-500" />,
+      description: 'Individual work items, progress tracking, and deadlines.',
+      actions: [
+        { key: 'view', label: 'View Tasks Board' },
+        { key: 'create', label: 'Create Tasks' },
+        { key: 'edit', label: 'Update Task Details' }
+      ]
+    },
+    { 
+      id: 'finance', 
+      label: 'Finance', 
+      icon: <CircleDollarSign className="w-5 h-5 text-amber-500" />,
+      description: 'Invoicing, company expenses, and profit reports.',
+      actions: [
+        { key: 'view', label: 'View Finance Hub' },
+        { key: 'invoices.create', label: 'Generate Invoices' },
+        { key: 'expenses.create', label: 'Log Expenses' }
+      ]
+    },
+    { 
+      id: 'hr', 
+      label: 'HR', 
+      icon: <UserPlus className="w-5 h-5 text-cyan-500" />,
+      description: 'Recruitment, employee directory, and HR operations.',
+      actions: [
+        { key: 'view', label: 'View HR Dashboard' },
+        { key: 'leaves.approve', label: 'Approve Leaves' }
+      ]
+    },
+    { 
+      id: 'attendance', 
+      label: 'Attendance', 
+      icon: <CalendarClock className="w-5 h-5 text-emerald-500" />,
+      description: 'Personal attendance tracking and historical logs.',
+      actions: [
+        { key: 'view', label: 'View My Attendance' },
+        { key: 'view_all', label: 'View All Logs (Admin)' }
+      ]
+    },
+    { 
+      id: 'clients', 
+      label: 'Clients', 
+      icon: <Contact className="w-5 h-5 text-orange-500" />,
+      description: 'Client database, lead pipeline, and interaction history.',
+      actions: [
+        { key: 'view', label: 'View CRM / Leads' },
+        { key: 'create', label: 'Add New Clients' },
+        { key: 'interactions.create', label: 'Log Conversations' },
+        { key: 'stage.edit', label: 'Move Deal Stages' },
+        { key: 'status.edit', label: 'Update Client Status' },
+        { key: 'documents.upload', label: 'Upload Documents' },
+        { key: 'documents.delete', label: 'Delete Documents' }
+      ]
+    },
+    { 
+      id: 'resources', 
+      label: 'Resources', 
+      icon: <CalendarClock className="w-5 h-5 text-purple-500" />,
+      description: 'Company assets, skills inventory, and inventory tracking.',
+      actions: [
+        { key: 'view', label: 'View Inventory' },
+        { key: 'create', label: 'Add Resource' },
+        { key: 'edit', label: 'Edit Resource' },
+        { key: 'delete', label: 'Remove Resource' },
+        { key: 'assign', label: 'Assign Asset' }
+      ]
+    }
+  ];
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 text-slate-900 overflow-y-auto">
+      <Card className="w-full max-w-2xl shadow-2xl animate-in fade-in zoom-in duration-200 max-h-[95vh] flex flex-col">
+        <CardHeader className="flex flex-row items-center justify-between py-6">
+          <div>
+            <CardTitle className="text-xl font-bold">{isEditing ? 'Edit Member' : 'Add New Member'}</CardTitle>
+            <p className="text-xs text-slate-500 mt-0.5">{isEditing ? 'Update team member information and permissions.' : 'Enter details to create a new team member account.'}</p>
+          </div>
+          <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600 transition-colors">
+            <X className="w-5 h-5" />
+          </button>
+        </CardHeader>
+        <CardContent className="p-6 overflow-y-auto">
+          <form onSubmit={onSubmit} className="space-y-4">
+            <Input label="Full Name" name="name" defaultValue={selectedUser?.name} placeholder="John Doe" required />
+            <Input label="Email Address" name="email" type="email" defaultValue={selectedUser?.email} placeholder="john@company.com" required />
+            {!isEditing && <Input label="Password" name="password" type="password" placeholder="••••••••" required />}
+             <div className="grid grid-cols-2 gap-4">
+                <Input label="Designation" name="designation" defaultValue={selectedUser?.designation} placeholder="Senior Developer" />
+                <Input label="Department" name="department" defaultValue={selectedUser?.department} placeholder="Engineering" />
+             </div>
+             <div className="grid grid-cols-2 gap-4">
+                <Input label="Joining Date" name="joining_date" type="date" defaultValue={selectedUser?.joining_date?.split('T')[0]} />
+                <Input label="Salary (₹)" name="salary" type="number" defaultValue={selectedUser?.salary} placeholder="50000" />
+             </div>
+             
+             <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                    <label className="text-sm font-medium text-slate-700">Role</label>
+                    <select 
+                        name="role_id" 
+                        defaultValue={selectedUser?.role_id}
+                        className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white" 
+                        required
+                    >
+                        <option value="">Select a role...</option>
+                        {roles.map(role => (
+                            <option key={role.id} value={role.id}>{role.name}</option>
+                        ))}
+                    </select>
+                </div>
+                <div className="space-y-1">
+                    <label className="text-sm font-medium text-slate-700">Status</label>
+                    <select 
+                        name="status" 
+                        defaultValue={selectedUser?.status || 'Active'}
+                        className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
+                    >
+                        <option value="Active">Active</option>
+                        <option value="Disabled">Disabled</option>
+                        <option value="Pending">Pending</option>
+                    </select>
+                </div>
+             </div>
+
+             {/* Skills Section */}
+             <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700">Skill Set (Type & Enter)</label>
+                <div className="relative">
+                    <Input 
+                        placeholder="Add skill (e.g. React)..." 
+                        value={skillInput}
+                        onChange={(e) => setSkillInput(e.target.value)}
+                        onKeyDown={handleAddSkill}
+                        className="h-10"
+                    />
+                    <p className="text-[10px] text-slate-400 mt-1">Press Enter to add multiple skills.</p>
+                </div>
+                <div className="flex flex-wrap gap-2 mt-3 min-h-[40px] p-3 bg-slate-50 border border-dashed border-slate-200 rounded-lg">
+                    {selectedSkills.length === 0 && <span className="text-xs text-slate-400">No skills added yet...</span>}
+                    {selectedSkills.map(skill => (
+                        <div key={skill.id} className="flex items-center gap-1.5 px-2.5 py-1 bg-white border border-slate-200 rounded-full text-xs font-bold text-slate-700 shadow-sm animate-in fade-in zoom-in duration-200">
+                            {skill.name}
+                            <button 
+                                type="button" 
+                                onClick={() => removeSkill(skill.id)}
+                                className="text-slate-400 hover:text-rose-500 transition-colors"
+                            >
+                                <X className="w-3 h-3" />
+                            </button>
+                        </div>
+                    ))}
+                </div>
+             </div>
+
+              {/* Comprehensive Permission Matrix */}
+              <div className="space-y-6 pt-6 border-t border-slate-100">
+                  <div className="flex items-center justify-between bg-slate-900 p-4 rounded-xl shadow-lg">
+                     <div>
+                        <label className="text-sm font-black text-white uppercase tracking-wider">Security & Access Control</label>
+                        <p className="text-[10px] text-slate-400 font-medium">Define granular module-level overrides for this user account.</p>
+                     </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    {PERMISSION_CONFIG.map((mod) => {
+                      const isPageEnabled = pages[mod.id] === true;
+                      return (
+                        <div key={mod.id} className={cn(
+                          "group border rounded-xl transition-all duration-300",
+                          isPageEnabled ? "bg-white border-primary-200 shadow-sm" : "bg-slate-50/50 border-slate-200 opacity-80"
+                        )}>
+                          <div className="p-4 flex items-center justify-between border-b border-transparent group-hover:border-slate-100 transition-colors">
+                            <div className="flex items-center gap-3">
+                              <span className="text-xl">{mod.icon}</span>
+                              <div>
+                                <h4 className={cn("text-sm font-bold transition-colors", isPageEnabled ? "text-primary-700" : "text-slate-700")}>{mod.label}</h4>
+                                <p className="text-[10px] text-slate-400 font-medium leading-tight max-w-[200px]">{mod.description}</p>
+                              </div>
+                            </div>
+                            <label className="relative inline-flex items-center cursor-pointer">
+                              <input 
+                                type="checkbox" 
+                                className="sr-only peer"
+                                checked={isPageEnabled}
+                                onChange={(e) => {
+                                  const isChecked = e.target.checked;
+                                  setPages({ ...pages, [mod.id]: isChecked });
+                                  
+                                  if (isChecked && !modules[mod.id]) {
+                                    setModules({ ...modules, [mod.id]: { view: true } });
+                                  }
+                                }}
+                              />
+                              <div className="w-9 h-5 bg-slate-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-600"></div>
+                            </label>
+                          </div>
+                          
+                          {isPageEnabled && (
+                            <div className="p-4 pt-2 grid grid-cols-2 sm:grid-cols-3 gap-3 animate-in slide-in-from-top-1 duration-200">
+                              {mod.actions.map(action => {
+                                const isActionEnabled = modules[mod.id]?.[action.key] === true;
+                                return (
+                                  <label key={action.key} className="flex items-center gap-2 text-[11px] cursor-pointer group/action p-2 rounded-lg hover:bg-slate-50 transition-colors">
+                                    <input 
+                                      type="checkbox"
+                                      className="rounded border-slate-300 text-primary-600 focus:ring-primary-500"
+                                      checked={isActionEnabled}
+                                      onChange={(e) => {
+                                        const isChecked = e.target.checked;
+                                        setModules({
+                                          ...modules,
+                                          [mod.id]: {
+                                            ...(modules[mod.id] || {}),
+                                            [action.key]: isChecked
+                                          }
+                                        });
+                                      }}
+                                    />
+                                    <span className={cn("font-medium transition-colors", isActionEnabled ? "text-slate-900 font-bold" : "text-slate-500 group-hover/action:text-slate-700")}>
+                                      {action.label}
+                                    </span>
+                                  </label>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+              </div>
+
+            <div className="flex gap-3 justify-end pt-6">
+              <Button type="button" variant="secondary" onClick={onClose}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmitting} className="bg-primary-600 hover:bg-primary-700">
+                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : (isEditing ? "Update Account" : "Create Account")}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default UserModal;
