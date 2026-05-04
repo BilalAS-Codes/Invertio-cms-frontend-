@@ -6,10 +6,10 @@ import { Table, TableHeader, TableRow, TableHead, TableCell } from '../../../com
 import Badge from '../../../components/ui/Badge';
 import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
-import { 
-  Loader2, Plus, X, FolderPlus, Users, Briefcase, CheckCircle2, 
-  AlertTriangle, TrendingUp, Link, FolderOpen, ExternalLink, 
-  FileText, UploadCloud, Trash2, MessageSquare, Send, Layers 
+import {
+  Loader2, Plus, X, FolderPlus, Users, Briefcase, CheckCircle2,
+  AlertTriangle, TrendingUp, Link, FolderOpen, ExternalLink,
+  FileText, UploadCloud, Trash2, MessageSquare, Send, Layers
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import ProjectTeamModal from '../components/ProjectTeamModal';
@@ -184,15 +184,15 @@ const ProjectsPage = () => {
             <div className="p-8 text-center text-slate-500">No projects available.</div>
           ) : (
             <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="py-4">Project Name</TableHead>
-                    <TableHead className="py-4">Client</TableHead>
-                    <TableHead className="py-4">Timeline</TableHead>
-                    <TableHead className="py-4">Status</TableHead>
-                    <TableHead className="text-right py-4">Action</TableHead>
-                  </TableRow>
-                </TableHeader>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="py-4">Project Name</TableHead>
+                  <TableHead className="py-4">Client</TableHead>
+                  <TableHead className="py-4">Timeline</TableHead>
+                  <TableHead className="py-4">Status</TableHead>
+                  <TableHead className="text-right py-4">Action</TableHead>
+                </TableRow>
+              </TableHeader>
               <tbody>
                 {projects.map((project) => (
                   <TableRow key={project.id} className="group">
@@ -214,10 +214,10 @@ const ProjectsPage = () => {
                             </span>
                           </>
                         )}
-                              {(project.resource_links?.length > 0 || project.documents_count > 0) && (
+                        {(project.resource_links?.length > 0 || project.documents_count > 0) && (
                           <>
                             <span className="text-slate-300">•</span>
-                            <button 
+                            <button
                               onClick={() => fetchProjectResources(project)}
                               className="text-[10px] text-primary-600 hover:text-primary-700 font-bold uppercase tracking-wider flex items-center gap-1"
                             >
@@ -244,7 +244,7 @@ const ProjectsPage = () => {
                     <TableCell className="text-right py-5">
                       {hasPermission('projects', 'team.manage') && (
                         <div className="flex items-center justify-end gap-2">
-                           <Button
+                          <Button
                             size="sm"
                             variant="ghost"
                             className="h-8 w-8 p-0 text-slate-400 hover:text-primary-600"
@@ -297,11 +297,11 @@ const ProjectsPage = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
                     <label className="text-sm font-medium text-slate-700">Project Category</label>
-                    <select 
-                      name="category" 
+                    <select
+                      name="category"
                       value={projectCategory}
                       onChange={(e) => setProjectCategory(e.target.value)}
-                      className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white" 
+                      className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
                       required
                     >
                       <option value="New Project">New Project (Lead-based)</option>
@@ -310,7 +310,7 @@ const ProjectsPage = () => {
                   </div>
                   <Input label="Project Name" name="name" placeholder="E-commerce Redesign" required />
                 </div>
-                
+
                 <div className="space-y-1">
                   <label className="text-sm font-medium text-slate-700">Account / Client</label>
                   <select name="client_id" className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white" required>
@@ -323,14 +323,14 @@ const ProjectsPage = () => {
                       return true; // Maintenance allows all
                     }).map(c => (
                       <option key={c.id} value={c.id}>
-                        {c.company_name} - {c.potential_project_name || 'Generic Project'} 
+                        {c.company_name} - {c.potential_project_name || 'Generic Project'}
                         {c.lifecycle_stage === 'Proposal Signed' ? ' (Signed Proposal)' : ''}
                       </option>
                     ))}
                   </select>
                   {projectCategory === 'New Project' && (
                     <p className="text-[10px] text-primary-600 mt-1 italic font-bold">
-                      *Selecting a signed lead will automatically link their potential project details.
+                      *Only the projects with 'Proposal Signed' or 'Project Started' status will be listed here.
                     </p>
                   )}
                 </div>
@@ -364,8 +364,8 @@ const ProjectsPage = () => {
                 <div className="space-y-4 pt-4 border-t border-slate-100">
                   <div className="space-y-1">
                     <label className="text-sm font-medium text-slate-700">Lead Source</label>
-                    <select 
-                      name="lead_source" 
+                    <select
+                      name="lead_source"
                       className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
                       onChange={(e) => setLeadSource(e.target.value)}
                       value={leadSource}
@@ -383,7 +383,7 @@ const ProjectsPage = () => {
                     <div className="space-y-4 animate-in slide-in-from-top-2 duration-200">
                       <div className="space-y-1">
                         <label className="text-sm font-medium text-slate-700">Reference Type</label>
-                        <select 
+                        <select
                           className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white"
                           onChange={(e) => setRefType(e.target.value)}
                           value={refType}
@@ -420,7 +420,7 @@ const ProjectsPage = () => {
                     </div>
                   )}
                 </div>
-                 <div className="flex gap-3 justify-end pt-6">
+                <div className="flex gap-3 justify-end pt-6">
                   <Button type="button" variant="secondary" onClick={() => setShowAddModal(false)}>
                     Cancel
                   </Button>

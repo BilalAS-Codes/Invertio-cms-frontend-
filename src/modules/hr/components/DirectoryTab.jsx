@@ -23,6 +23,16 @@ const DirectoryTab = ({
   setSelectedCandidate,
   setShowInterviewModal
 }) => {
+  const [statusFilter, setStatusFilter] = React.useState('All');
+
+  const filteredPersonnel = [
+    ...employees.map(e => ({ ...e, id: e.user_id, employee_id: e.id, recordType: 'Employee', displayStatus: e.status || 'Active' })),
+    ...candidates.map(c => ({ ...c, recordType: 'Candidate', displayStatus: c.stage || 'Applied' }))
+  ].filter(person => {
+    if (statusFilter === 'All') return true;
+    return person.displayStatus === statusFilter;
+  }).sort((a, b) => a.recordType.localeCompare(b.recordType));
+
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
@@ -38,11 +48,24 @@ const DirectoryTab = ({
             <CardTitle className="text-xl font-bold">Employee Directory</CardTitle>
             <p className="text-xs text-slate-500 mt-0.5 font-medium">Accessing {employees.length} personnel files.</p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="h-9 font-bold text-[10px] uppercase tracking-wider">
-              <Filter className="w-3.5 h-3.5 mr-2" />
-              Filter
-            </Button>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
+              <Filter className="w-3.5 h-3.5 text-slate-400" />
+              <select 
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="bg-transparent border-none text-[11px] font-bold text-slate-600 focus:ring-0 cursor-pointer"
+              >
+                <option value="Active">Active Staff</option>
+                <option value="Disabled">Disabled</option>
+                <option value="Applied">Applied</option>
+                <option value="Interview">Interview</option>
+                <option value="Offer">Offer</option>
+                <option value="Hired">Hired Candidates</option>
+                <option value="Rejected">Rejected</option>
+                <option value="All">Show All</option>
+              </select>
+            </div>
           </div>
         </CardHeader>
 
@@ -58,10 +81,7 @@ const DirectoryTab = ({
               </TableRow>
             </TableHeader>
             <tbody>
-              {[
-                ...employees.map(e => ({ ...e, id: e.user_id, employee_id: e.id, recordType: 'Employee', displayStatus: 'Active' })),
-                ...candidates.map(c => ({ ...c, recordType: 'Candidate', displayStatus: c.stage || 'Applied' }))
-              ].sort((a, b) => a.recordType.localeCompare(b.recordType)).map(person => (
+              {filteredPersonnel.map(person => (
                 <TableRow key={`${person.recordType}-${person.id}`} className="group hover:bg-slate-50/50 transition-colors">
                   <TableCell className="py-5">
                     <div className="flex items-center gap-4">

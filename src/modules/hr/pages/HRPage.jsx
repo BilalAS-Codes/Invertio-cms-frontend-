@@ -7,8 +7,10 @@ import {
   Users,
   Calendar,
   UserPlus,
-  Loader2
+  Loader2,
+  Filter
 } from 'lucide-react';
+import { cn } from '../../../utils/cn';
 import toast from 'react-hot-toast';
 import { hasPermission } from '../../../utils/permissionUtils';
 
@@ -43,6 +45,7 @@ const HRPage = () => {
   const [users, setUsers] = useState([]); 
   const [roles, setRoles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showAll, setShowAll] = useState(false);
 
   // Document Management
   const [showDocsModal, setShowDocsModal] = useState(false);
@@ -115,14 +118,14 @@ const HRPage = () => {
 
   useEffect(() => {
     fetchHRData();
-  }, [activeTab]);
+  }, [activeTab, showAll]);
 
   const fetchHRData = async () => {
     setLoading(true);
     try {
       if (activeTab === 'recruitment') {
         const [pipeRes, userRes, rolesRes] = await Promise.all([
-          axios.get('/hr/recruitment/pipeline'),
+          axios.get(`/hr/recruitment/pipeline?includeAll=${showAll}`),
           axios.get('/users/selection'),
           axios.get('/users/roles')
         ]);
@@ -141,13 +144,13 @@ const HRPage = () => {
         setPipeline(chartMap.length > 0 ? chartMap : [{value: 1, name: 'Applied', fill: '#3b82f6'}]);
       } else if (activeTab === 'directory') {
         const [empRes, candRes] = await Promise.all([
-          axios.get('/hr/employees'),
-          axios.get('/hr/recruitment/pipeline')
+          axios.get(`/hr/employees?includeAll=true`),
+          axios.get(`/hr/recruitment/pipeline?includeAll=true`)
         ]);
         setEmployees(empRes.data.data || []);
         setCandidates(candRes.data.data || []);
       } else if (activeTab === 'performance') {
-        const res = await axios.get('/hr/employees');
+        const res = await axios.get(`/hr/employees?includeAll=${showAll}`);
         setEmployees(res.data.data || []);
       } else if (activeTab === 'leaves') {
         const res = await axios.get('/hr/leaves');

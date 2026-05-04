@@ -153,16 +153,19 @@ const AttendancePage = () => {
             return;
         }
 
-        const headers = ["Date", "Status", "Check In", "Check Out", "Location"];
+        const headers = ["Date", "Day", "Status", "Check In", "Check Out", "Location"];
         const csvRows = [headers.join(",")];
 
         attendance.forEach(entry => {
-            const date = new Date(entry.date).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' });
+            const dateObj = new Date(entry.date);
+            const date = dateObj.toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' });
+            const day = dateObj.toLocaleDateString('en-IN', { weekday: 'long', timeZone: 'Asia/Kolkata' });
             const checkIn = entry.check_in ? new Date(entry.check_in).toLocaleTimeString('en-IN', { hour12: false, timeZone: 'Asia/Kolkata' }) : "N/A";
             const checkOut = entry.check_out ? new Date(entry.check_out).toLocaleTimeString('en-IN', { hour12: false, timeZone: 'Asia/Kolkata' }) : "N/A";
             
             const row = [
                 `"${date}"`,
+                `"${day}"`,
                 `"${entry.status}"`,
                 `"${checkIn}"`,
                 `"${checkOut}"`,
