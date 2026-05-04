@@ -112,8 +112,10 @@ const AttendancePage = () => {
         const checkInTimes = data
             .filter(a => a.check_in)
             .map(a => {
-                const istDate = new Date(new Date(a.check_in).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
-                return istDate.getHours() * 60 + istDate.getMinutes();
+                const d = new Date(a.check_in);
+                const hours = parseInt(new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', hour: '2-digit', hour12: false }).format(d));
+                const minutes = parseInt(new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', minute: '2-digit' }).format(d));
+                return hours * 60 + minutes;
             });
         
         const avgMinutes = checkInTimes.length 
@@ -131,9 +133,11 @@ const AttendancePage = () => {
         const onTimeCount = data
             .filter(a => a.check_in)
             .filter(a => {
-                const istDate = new Date(new Date(a.check_in).toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }));
-                const minutes = istDate.getHours() * 60 + istDate.getMinutes();
-                return minutes <= 9 * 60 + 15; // 9:15 AM
+                const d = new Date(a.check_in);
+                const hours = parseInt(new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', hour: '2-digit', hour12: false }).format(d));
+                const minutes = parseInt(new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', minute: '2-digit' }).format(d));
+                const totalMinutes = hours * 60 + minutes;
+                return totalMinutes <= 9 * 60 + 15; // 9:15 AM
             }).length;
         
         const onTimeRateValue = totalPresent > 0 
@@ -329,7 +333,7 @@ const AttendancePage = () => {
                                             <Clock className="w-3.5 h-3.5 text-emerald-500" />
                                             <span className="text-xs font-black text-slate-900">
                                                 {entry.check_in 
-                                                    ? new Date(entry.check_in.includes('+') || entry.check_in.includes('Z') ? entry.check_in : `${entry.check_in}+05:30`).toLocaleTimeString('en-IN', { 
+                                                    ? new Date(entry.check_in).toLocaleTimeString('en-IN', { 
                                                         hour: '2-digit', 
                                                         minute: '2-digit', 
                                                         hour12: true, 
@@ -344,7 +348,7 @@ const AttendancePage = () => {
                                             <Clock className="w-3.5 h-3.5" />
                                             <span className="text-xs font-bold">
                                                 {entry.check_out 
-                                                    ? new Date(entry.check_out.includes('+') || entry.check_out.includes('Z') ? entry.check_out : `${entry.check_out}+05:30`).toLocaleTimeString('en-IN', { 
+                                                    ? new Date(entry.check_out).toLocaleTimeString('en-IN', { 
                                                         hour: '2-digit', 
                                                         minute: '2-digit', 
                                                         hour12: true, 
